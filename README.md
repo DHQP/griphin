@@ -8,6 +8,9 @@
 
 ## Introduction
 
+The GRiPHin pipeline currently takes either a samplesheet (nf-core style) or a directory with [PHoeNIx](https://github.com/cdcgov/phoenix) style output. 
+
+![image](https://user-images.githubusercontent.com/21023514/213782992-a1a3186d-e239-4291-8885-d92bff4d6689.png)
 
 
 **DHQP/griphin** is a bioinformatics best-practice analysis pipeline for A pipeline to convert PHoeNIx output into a custom report.
