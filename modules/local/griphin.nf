@@ -7,7 +7,7 @@ process GRIPHIN {
     path(db) // -a
     val(prefix) // -o
     path(control_list) // -c
-    val(complete_path) 
+    val(complete_path)
 
     output:
     path("*.xlsx"),       emit: griphin_report
@@ -26,7 +26,7 @@ process GRIPHIN {
         while IFS="" read -r line;
         do
             sample_name=\$(echo \$line | cut -d ',' -f 1)
-            echo 
+            echo
             if [[ "\$sample_name" == "sample" ]]; then
                 echo "sample,directory" > GRiPHin_samplesheet.csv
             else
@@ -42,7 +42,7 @@ process GRIPHIN {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-       python: \$(python --version | sed 's/Python //g')
+        python: \$(python --version | sed 's/Python //g')
     END_VERSIONS
     """
 }
