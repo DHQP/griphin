@@ -22,7 +22,7 @@ class WorkflowMain {
     // Print help to screen if required
     //
     public static String help(workflow, params, log) {
-        def command = "nextflow run ${workflow.manifest.name} --input samplesheet.csv --genome GRCh37 -profile docker"
+        def command = "nextflow run ${workflow.manifest.name} -profile singularity --input_dir ../input_dir/ --outdir ./results \n\n  Required to pass either --input_dir OR --input."
         def help_string = ''
         help_string += NfcoreTemplate.logo(workflow, params.monochrome_logs)
         help_string += NfcoreSchema.paramsHelp(workflow, params, command)
@@ -65,29 +65,8 @@ class WorkflowMain {
         // Check that a -profile or Nextflow config has been provided to run the pipeline
         NfcoreTemplate.checkConfigProvided(workflow, log)
 
-        // Check that conda channels are set-up correctly
-        if (params.enable_conda) {
-            Utils.checkCondaChannels(log)
-        }
-
         // Check AWS batch settings
         NfcoreTemplate.awsBatch(workflow, params)
 
-        // Check input has been provided
-        if (!params.input) {
-            log.error "Please provide an input samplesheet to the pipeline e.g. '--input samplesheet.csv'"
-            System.exit(1)
-        }
-    }
-    //
-    // Get attribute from genome config file e.g. fasta
-    //
-    public static Object getGenomeAttribute(params, attribute) {
-        if (params.genomes && params.genome && params.genomes.containsKey(params.genome)) {
-            if (params.genomes[ params.genome ].containsKey(attribute)) {
-                return params.genomes[ params.genome ][ attribute ]
-            }
-        }
-        return null
     }
 }

@@ -1,24 +1,13 @@
 #!/usr/bin/env nextflow
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    nf-core/griphin
+    DHQP/griphin
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    Github : https://github.com/nf-core/griphin
-
-    Website: https://nf-co.re/griphin
-    Slack  : https://nfcore.slack.com/channels/griphin
+    Github : https://github.com/DHQP/griphin
 ----------------------------------------------------------------------------------------
 */
 
 nextflow.enable.dsl = 2
-
-/*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    GENOME PARAMETER VALUES
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*/
-
-params.fasta = WorkflowMain.getGenomeAttribute(params, 'fasta')
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -34,13 +23,16 @@ WorkflowMain.initialise(workflow, params, log)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { GRIPHIN } from './workflows/griphin'
+include { GRIPHIN_WF } from './workflows/griphin'
 
 //
-// WORKFLOW: Run main nf-core/griphin analysis pipeline
+// WORKFLOW: Run main DHQP/griphin analysis pipeline
 //
 workflow NFCORE_GRIPHIN {
-    GRIPHIN ()
+    main:
+        GRIPHIN_WF( )
+    emit:
+        griphin_report = GRIPHIN_WF.out.griphin_report
 }
 
 /*
@@ -49,10 +41,6 @@ workflow NFCORE_GRIPHIN {
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-//
-// WORKFLOW: Execute a single named workflow for the pipeline
-// See: https://github.com/nf-core/rnaseq/issues/619
-//
 workflow {
     NFCORE_GRIPHIN ()
 }
