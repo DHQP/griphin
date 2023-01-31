@@ -6,6 +6,26 @@
 
 def summary_params = NfcoreSchema.paramsSummaryMap(workflow, params)
 
+// Check input path parameters to see if they exist
+if (params.input != null ) {  // if a samplesheet is passed
+    // allow input to be relative, turn into string and strip off the everything after the last backslash to have remainder of as the full path to the samplesheet. 
+    //input_samplesheet_path = Channel.fromPath(params.input, relative: true).map{ [it.toString().replaceAll(/([^\/]+$)/, "").replaceAll(/\/$/, "") ] }
+    input_samplesheet_path = Channel.fromPath(params.input, relative: true)
+    if (params.input_dir != null ) { //if samplesheet is passed and an input directory exit
+        exit 1, 'You need EITHER an input samplesheet or a directory! Just pick one.' 
+    } else { // if only samplesheet is passed check to make sure input is an actual file
+        def checkPathParamList = [ params.input ]
+        for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
+    }
+} else {
+    if (params.input_dir != null ) { // if no samplesheet is passed, but an input directory is given
+        def checkPathParamList = [ params.input_dir ]
+        for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
+    } else { // if no samplesheet is passed and no input directory is given
+        exit 1, 'You need EITHER an input samplesheet or a directory!' 
+    }
+}
+
 /*
 ========================================================================================
     IMPORT LOCAL MODULES
@@ -39,26 +59,6 @@ workflow GRIPHIN_WF {
         ch_versions = Channel.empty()
         // Allow outdir to be relative
         //outdir_path = Channel.fromPath(params.outdir, relative: true, type: 'dir')
-
-        // Check input path parameters to see if they exist
-        if (params.input != null ) {  // if a samplesheet is passed
-            // allow input to be relative, turn into string and strip off the everything after the last backslash to have remainder of as the full path to the samplesheet. 
-            //input_samplesheet_path = Channel.fromPath(params.input, relative: true).map{ [it.toString().replaceAll(/([^\/]+$)/, "").replaceAll(/\/$/, "") ] }
-            input_samplesheet_path = Channel.fromPath(params.input, relative: true)
-            if (params.input_dir != null ) { //if samplesheet is passed and an input directory exit
-                exit 1, 'You need EITHER an input samplesheet or a directory! Just pick one.' 
-            } else { // if only samplesheet is passed check to make sure input is an actual file
-                def checkPathParamList = [ params.input ]
-                for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
-            }
-        } else {
-            if (params.input_dir != null ) { // if no samplesheet is passed, but an input directory is given
-                def checkPathParamList = [ params.input_dir ]
-                for (param in checkPathParamList) { if (param) { file(param, checkIfExists: true) } }
-            } else { // if no samplesheet is passed and no input directory is given
-                exit 1, 'You need EITHER an input samplesheet or a directory!' 
-            }
-        }
 
         if (params.input != null) {
             if (params.control_list != null){
