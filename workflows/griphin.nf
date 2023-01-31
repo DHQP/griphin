@@ -84,6 +84,7 @@ workflow GRIPHIN_WF {
             CREATE_SAMPLESHEET (
                 inputdir_path
             )
+            ch_versions = ch_versions.mix(CREATE_SAMPLESHEET.out.versions)
 
             if (params.control_list != null){
                 // Allow control list to be relative
