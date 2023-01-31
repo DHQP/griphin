@@ -8,6 +8,7 @@ process GRIPHIN {
     val(prefix) // -o
     path(control_list) // -c
     val(complete_path)
+    val(platform_string) // -p
 
     output:
     path("*.xlsx"),       emit: griphin_report
@@ -15,9 +16,10 @@ process GRIPHIN {
 
     script: // This script is bundled with the pipeline, in cdcgov/griphin/bin/
     //def samplesheet = sample_sheet ? "--samplesheet ${sample_sheet}" : ""
-    def controls    = control_list ? "--control_list ${control_list}" : ""
+    def controls      = control_list ? "--control_list ${control_list}" : ""
     //def input_dir   = input ? "--directory ${input}" : ""
-    def report_prefix     = prefix ? "--output ${prefix}" : ""
+    def report_prefix = prefix ? "--output ${prefix}" : ""
+    def platform      = platform_string ? "--platform ${platform_string}" : ""
     """
     cat ${sample_sheet}
     #create a samplesheet to be passed to GRiPHin.py
@@ -38,7 +40,7 @@ process GRIPHIN {
         done < ${sample_sheet}
     fi
 
-    GRiPHin.py --samplesheet GRiPHin_samplesheet.csv --ar_db ${db} ${controls} ${report_prefix}
+    GRiPHin.py --samplesheet GRiPHin_samplesheet.csv --ar_db ${db} ${controls} ${report_prefix} ${platform}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

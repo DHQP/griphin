@@ -32,6 +32,8 @@ include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoft
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+//ch_multiqc_custom_methods_description = params.multiqc_methods_description ? file(params.multiqc_methods_description, checkIfExists: true) : file("$projectDir/assets/methods_description_template.yml", checkIfExists: true)
+
 workflow GRIPHIN_WF {
     main:
         ch_versions = Channel.empty()
@@ -64,13 +66,13 @@ workflow GRIPHIN_WF {
                 control_path = Channel.fromPath(params.control_list, relative: true)
                 // Create report
                 GRIPHIN (
-                    input_samplesheet_path, params.ardb, params.prefix, control_path, []
+                    input_samplesheet_path, params.ardb, params.prefix, control_path, [], params.platform
                 )
                 ch_versions = ch_versions.mix(GRIPHIN.out.versions)
             } else {
                 // Create report
                 GRIPHIN (
-                    input_samplesheet_path, params.ardb, params.prefix, [], []
+                    input_samplesheet_path, params.ardb, params.prefix, [], [], params.platform
                 )
                 ch_versions = ch_versions.mix(GRIPHIN.out.versions)
             }
@@ -88,13 +90,13 @@ workflow GRIPHIN_WF {
                 control_path = Channel.fromPath(params.control_list, relative: true)
                 // Create report
                 GRIPHIN (
-                    CREATE_SAMPLESHEET.out.samplesheet, params.ardb, params.prefix, control_path, inputdir_path
+                    CREATE_SAMPLESHEET.out.samplesheet, params.ardb, params.prefix, control_path, inputdir_path, params.platform
                 )
                 ch_versions = ch_versions.mix(GRIPHIN.out.versions)
             } else {
                 // Create report
                 GRIPHIN (
-                    CREATE_SAMPLESHEET.out.samplesheet, params.ardb, params.prefix, [], inputdir_path
+                    CREATE_SAMPLESHEET.out.samplesheet, params.ardb, params.prefix, [], inputdir_path, params.platform
                 )
                 ch_versions = ch_versions.mix(GRIPHIN.out.versions)
             }
@@ -107,6 +109,22 @@ workflow GRIPHIN_WF {
     emit:
         griphin_report = GRIPHIN.out.griphin_report
 
+}
+
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    COMPLETION EMAIL AND SUMMARY
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+
+workflow.onComplete {
+    if (params.email || params.email_on_fail) {
+        NfcoreTemplate.email(workflow, params, summary_params, projectDir, log, multiqc_report)
+    }
+    NfcoreTemplate.summary(workflow, params, log)
+    if (params.hook_url) {
+        NfcoreTemplate.IM_notification(workflow, params, summary_params, projectDir, log)
+    }
 }
 
 /*
